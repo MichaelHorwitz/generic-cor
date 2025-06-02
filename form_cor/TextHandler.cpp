@@ -2,7 +2,7 @@
 // Created by michael on 6/1/25.
 //
 
-#include "TextHandler.hpp"
+#include "../TextHandler.hpp"
 
 bool TextHandler::isValidText(const std::string & input) {
     return !input.empty();

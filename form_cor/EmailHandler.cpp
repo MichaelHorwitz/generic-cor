@@ -1,7 +1,3 @@
-//
-// Created by michael on 6/1/25.
-//
-
 #include "EmailHandler.hpp"
 #include <regex>
 

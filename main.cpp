@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "EmailHandler.hpp"
-#include "NumberHandler.hpp"
-#include "TextHandler.hpp"
+#include "form_cor/EmailHandler.hpp"
+#include "form_cor/NumberHandler.hpp"
+#include "form_cor/TextHandler.hpp"
 
 // Game plan:
 // Make a very concrete cor for form validation
@@ -11,7 +11,7 @@
 // Make ATM money printer with generic
 
 int main() {
-    TextHandler* mainHandler = new TextHandler();
+    auto* mainHandler = new TextHandler();
     mainHandler->successor = new NumberHandler();
     mainHandler->successor->successor = new EmailHandler();
     FormInput form_input;
