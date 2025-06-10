@@ -1,9 +1,13 @@
 #pragma once
+#include <functional>
 #include <memory>
 
-class Handler {
+template<typename request,typename... functionToDoArgs>
+class Handler final {
     typedef std::unique_ptr<Handler> hdlrPtr; // NOLINT
     hdlrPtr successor;
+    std::function<bool(functionToDoArgs...)> shouldDoFunction;
+    std::function<request(functionToDoArgs...)> functionToDo;
 
 public:
     virtual ~Handler() = default;
@@ -13,9 +17,19 @@ public:
     explicit Handler(hdlrPtr s) : successor(std::move(s)) {
     }
 
-    virtual void handleRequest(int amount) { // NOLINT
+    explicit Handler(
+    std::function<bool(functionToDoArgs...)> shouldDo,
+    std::function<request(functionToDoArgs...)> toDo,
+    hdlrPtr s = nullptr
+    ) : shouldDoFunction(std::move(shouldDo)), functionToDo(std::move(toDo)), successor(std::move(s)) {}
+
+    virtual request handleRequest(functionToDoArgs... args) { // NOLINT
+        bool doFunction = shouldDoFunction(args...);
+        if (doFunction) {
+            functionToDo(args...);
+        }
         if (successor) {
-            successor->handleRequest(amount);
+            successor->handleRequest(args...);
         }
     };
 
