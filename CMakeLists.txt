@@ -14,5 +14,7 @@ add_executable(clion_gcor main.cpp
         form_cor/TextHandler.hpp
         form_cor/NumberHandler.cpp
         form_cor/NumberHandler.hpp
-        Handler.cpp
-        Handler.hpp)
+        Handler.hpp
+        HundredHandler.hpp
+        TwentyHandler.hpp
+        OneRandHandler.hpp)

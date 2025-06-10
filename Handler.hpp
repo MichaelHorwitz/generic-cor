@@ -1,34 +1,29 @@
 #pragma once
-#include <functional>
 #include <memory>
 
-template <typename HandleReturnType>
 class Handler {
-protected:
-    std::unique_ptr<Handler> successor_{nullptr};
-    std::function<HandleReturnType()> doSomething_;
-    std::function<bool()> shouldDoSomething_;
+    typedef std::unique_ptr<Handler> hdlrPtr; // NOLINT
+    hdlrPtr successor;
 
 public:
-    explicit Handler(std::function<HandleReturnType()> foo, std::function<bool()> should_do_something_) {
-        this->doSomething_ = std::move(foo);
-        this->shouldDoSomething_ = std::move(should_do_something_);
+    virtual ~Handler() = default;
+
+    explicit Handler() { successor = nullptr; };
+
+    explicit Handler(hdlrPtr s) : successor(std::move(s)) {
+    }
+
+    virtual void handleRequest(int amount) { // NOLINT
+        if (successor) {
+            successor->handleRequest(amount);
+        }
     };
-    virtual HandleReturnType handleRequest() {
-        bool shouldDoSomethingVar = shouldDoSomething_();
-        HandleReturnType retVal;
-        if (shouldDoSomethingVar) {
-            retVal = doSomething_();
-        }
-        if (successor_) {
-            successor_->handleRequest();
-        }
-        return retVal;
-    }
-    void setSuccessor(std::unique_ptr<Handler> successor) {
-        successor_ = std::move(successor);
-    }
-    auto getSuccessor() {
-        return successor_;
+
+    void setSuccessor(hdlrPtr s) {
+        this->successor = std::move(s);
+    };
+
+    [[nodiscard]] Handler *getSuccessor() const {
+        return successor.get();
     }
 };
