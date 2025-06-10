@@ -24,15 +24,15 @@ public:
     hdlrPtr s = nullptr
     ) : shouldDoFunction(std::move(shouldDo)), functionToDo(std::move(toDo)), successor(std::move(s)) {}
 
-    virtual std::vector<returnType> handleRequest(functionToDoArgs... args) { // NOLINT
+    std::vector<returnType> handleRequest(functionToDoArgs&&... args) { // NOLINT
         std::vector<returnType> returnVec;
-        bool doFunction = shouldDoFunction(args...);
-        if (doFunction) {
+        if(!shouldDoFunction){return returnVec;}
+        if (functionToDo && shouldDoFunction(std::forward<functionToDoArgs>(args)...)) {
             returnVec.push_back(functionToDo(args...));
         }
         if (successor) {
             auto tailVec = successor->handleRequest(args...);
-            // append
+            
             returnVec.insert(returnVec.end(),
                            std::make_move_iterator(tailVec.begin()),
                            std::make_move_iterator(tailVec.end()));
@@ -41,6 +41,9 @@ public:
     };
 
     void setSuccessor(hdlrPtr s) {
+        if (s.get() == this) {
+            return;
+        }
         this->successor = std::move(s);
     };
 
