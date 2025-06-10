@@ -1,13 +1,14 @@
 #pragma once
 #include <functional>
 #include <memory>
+#include <vector>
 
-template<typename request,typename... functionToDoArgs>
+template<typename returnType, typename... functionToDoArgs>
 class Handler final {
     typedef std::unique_ptr<Handler> hdlrPtr; // NOLINT
     hdlrPtr successor;
     std::function<bool(functionToDoArgs...)> shouldDoFunction;
-    std::function<request(functionToDoArgs...)> functionToDo;
+    std::function<returnType(functionToDoArgs...)> functionToDo;
 
 public:
     virtual ~Handler() = default;
@@ -19,18 +20,24 @@ public:
 
     explicit Handler(
     std::function<bool(functionToDoArgs...)> shouldDo,
-    std::function<request(functionToDoArgs...)> toDo,
+    std::function<returnType(functionToDoArgs...)> toDo,
     hdlrPtr s = nullptr
     ) : shouldDoFunction(std::move(shouldDo)), functionToDo(std::move(toDo)), successor(std::move(s)) {}
 
-    virtual request handleRequest(functionToDoArgs... args) { // NOLINT
+    virtual std::vector<returnType> handleRequest(functionToDoArgs... args) { // NOLINT
+        std::vector<returnType> returnVec;
         bool doFunction = shouldDoFunction(args...);
         if (doFunction) {
-            functionToDo(args...);
+            returnVec.push_back(functionToDo(args...));
         }
         if (successor) {
-            successor->handleRequest(args...);
+            auto tailVec = successor->handleRequest(args...);
+            // append
+            returnVec.insert(returnVec.end(),
+                           std::make_move_iterator(tailVec.begin()),
+                           std::make_move_iterator(tailVec.end()));
         }
+        return returnVec;
     };
 
     void setSuccessor(hdlrPtr s) {

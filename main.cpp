@@ -13,24 +13,27 @@ bool shouldDo(const int& amount, const int amountToCheck) {
     return amount >= amountToCheck;
 }
 
-void do100 (int& amount) {
+int do100 (int& amount) {
     doDeduction(amount, 100);
+    return 100;
 }
 
 bool shouldDo100 (const int& amount) {
     return shouldDo(amount, 100);
 }
 
-void do20 (int& amount) {
+int do20 (int& amount) {
     doDeduction(amount, 20);
+    return 20;
 }
 
 bool shouldDo20 (const int& amount) {
     return shouldDo(amount, 20);
 }
 
-void do1 (int& amount) {
+int do1 (int& amount) {
     doDeduction(amount, 1);
+    return 1;
 }
 
 bool shouldDo1 (const int& amount) {
@@ -39,10 +42,13 @@ bool shouldDo1 (const int& amount) {
 
 int main() {
     auto hundredsHandler =
-        Handler<int&>(shouldDo100, do100,
-        std::make_unique<Handler<int&>>(shouldDo20, do20,
-            std::make_unique<Handler<int&>>(shouldDo1, do1)));
+        Handler<int, int&>(shouldDo100, do100,
+        std::make_unique<Handler<int, int&>>(shouldDo20, do20,
+            std::make_unique<Handler<int, int&>>(shouldDo1, do1)));
     int currAmount = 1234;
-    hundredsHandler.handleRequest(currAmount);
+    std::vector<int> result = hundredsHandler.handleRequest(currAmount);
+    for (auto res: result) {
+        std::cout << "retval" << res;
+    }
     return 0;
 }
