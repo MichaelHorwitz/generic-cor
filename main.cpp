@@ -31,9 +31,17 @@ int doSomethingDifferent() {
     return 8;
 }
 
+bool alwaysDoSomething() {
+    return true;
+}
+bool neverDoSomething() {
+    return false;
+}
 int main() {
-    auto handler    = std::make_unique<Handler<int>>(doSomething);
-    auto handler2   = std::make_unique<Handler<int>>(doSomethingDifferent);
+    auto handler    = std::make_unique<Handler<int>>(doSomething, alwaysDoSomething);
+    auto handler2   = std::make_unique<Handler<int>>(doSomethingDifferent, alwaysDoSomething);
+    auto handler3   = std::make_unique<Handler<int>>(doSomething, neverDoSomething);
+    handler2->setSuccessor(std::move(handler3));
     handler->setSuccessor(std::move(handler2));
     handler->handleRequest();
     return 0;
